@@ -1,7 +1,7 @@
 {
   "name": "downloadmyvids",
   "version": "1.0.0",
-  "description": "Download video from various platforms",
+  "description": "Download videos from various platforms",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
