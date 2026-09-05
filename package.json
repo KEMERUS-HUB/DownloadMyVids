@@ -1,16 +1,16 @@
 {
   "name": "downloadmyvids",
   "version": "1.0.0",
-  "description": "Download video dari berbagai platform (YouTube, X, TikTok, Instagram, Facebook, dll.)",
+  "description": "Download video from various platforms",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "@lmna22/aio-downloader": "^2.0.3"
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "license": "MIT"
+  }
 }
