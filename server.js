@@ -3,10 +3,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware untuk parse JSON body
 app.use(express.json());
-
-// Middleware untuk static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== PROXY ENDPOINT =====
@@ -17,24 +14,47 @@ app.post('/api/scan', async (req, res) => {
       return res.status(400).json({ success: false, message: 'URL tidak boleh kosong' });
     }
 
-    // Panggil API Vevioz dari server (bebas CORS)
-    const response = await fetch('https://api.vevioz.com/api/button/', {
-      method: 'POST',
+    console.log(`[Proxy] Menerima URL: ${url}`);
+
+    // Gunakan metode GET ke Vevioz (lebih simpel)
+    const apiUrl = `https://api.vevioz.com/api/button/?url=${encodeURIComponent(url)}`;
+    console.log(`[Proxy] Memanggil: ${apiUrl}`);
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (compatible; Downloadmyvids/1.0)',
       },
-      body: new URLSearchParams({ url }),
     });
 
+    console.log(`[Proxy] Status response: ${response.status}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Proxy] Error dari Vevioz: ${response.status} - ${errorText}`);
+      return res.status(response.status).json({
+        success: false,
+        message: `API Vevioz error: ${response.status}`,
+        detail: errorText,
+      });
+    }
+
     const data = await response.json();
-    res.json(data); // Kirim balik ke frontend
+    console.log(`[Proxy] Data diterima dari Vevioz:`, JSON.stringify(data).slice(0, 200) + '...');
+
+    res.json(data);
   } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).json({ success: false, message: err.message || 'Gagal memproses link' });
+    console.error('[Proxy] Error internal:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan di server proxy',
+      error: err.message,
+    });
   }
 });
 
-// Fallback: semua request ke index.html
+// Static files & fallback
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
