@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
-const ytdl = require('ytdl-core');
-
+const fetch = require('node-fetch'); // opsional, bisa pakai global fetch
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -13,54 +12,48 @@ app.post('/api/scan', async (req, res) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ success: false, message: 'URL diperlukan' });
 
-    if (!ytdl.validateURL(url)) {
-      return res.status(400).json({ success: false, message: 'URL YouTube tidak valid' });
-    }
+    // Gunakan API YouTube yang stabil
+    const apiUrl = `https://yt-downloader-api.vercel.app/api?url=${encodeURIComponent(url)}`;
+    console.log('[Proxy] Memanggil:', apiUrl);
 
-    const info = await ytdl.getInfo(url);
-    const title = info.videoDetails.title;
-    const thumbnail = info.videoDetails.thumbnails?.[0]?.url || '';
-
-    // Ambil semua format video
-    const formats = info.formats
-      .filter(f => f.hasVideo && f.hasAudio)
-      .map(f => ({
-        label: `${f.qualityLabel}`,
-        url: f.url,
-        quality: f.qualityLabel,
-      }));
-
-    // Sortir dari tertinggi ke terendah
-    const order = ['1080p', '720p', '480p', '360p', '144p'];
-    const sorted = formats.sort((a, b) => {
-      const ia = order.indexOf(a.quality);
-      const ib = order.indexOf(b.quality);
-      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    const response = await fetch(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Downloadmyvids/1.0)',
+        'Accept': 'application/json',
+      },
     });
 
-    // Hapus duplikat kualitas
-    const seen = new Set();
-    const unique = sorted.filter(f => {
-      if (seen.has(f.quality)) return false;
-      seen.add(f.quality);
-      return true;
-    });
-
-    if (unique.length === 0) {
-      throw new Error('Tidak ada format video yang tersedia');
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('[API] Error response:', text);
+      throw new Error(`API error: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log('[API] Data diterima:', JSON.stringify(data).slice(0, 300));
+
+    // Format response dari API ini: { title, thumbnail, download: { '720p': 'url', ... } }
+    if (!data.download || Object.keys(data.download).length === 0) {
+      throw new Error('Tidak ada link download');
+    }
+
+    // Kirim balik dengan format yang sama seperti sebelumnya
+    const qualities = Object.entries(data.download).map(([label, url]) => ({ label, url }));
+    const downloadObj = {};
+    qualities.forEach(q => { downloadObj[q.label] = q.url; });
 
     res.json({
       success: true,
       data: {
-        title,
-        thumbnail,
-        download: Object.fromEntries(unique.map(f => [f.label, f.url])),
+        title: data.title || 'Video',
+        thumbnail: data.thumbnail || '',
+        download: downloadObj,
       },
     });
+
   } catch (err) {
     console.error('[Scan] Error:', err);
-    res.status(500).json({ success: false, message: err.message || 'Gagal memproses link YouTube' });
+    res.status(500).json({ success: false, message: err.message || 'Gagal memproses link' });
   }
 });
 
