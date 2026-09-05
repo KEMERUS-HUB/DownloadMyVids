@@ -1,0 +1,16 @@
+{
+  "name": "downloadmyvids",
+  "version": "1.0.0",
+  "description": "Download video dari berbagai platform (YouTube, X, TikTok, Instagram, Facebook, dll.)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT"
+}

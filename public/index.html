@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Downloadmyvids - Download Video dari Berbagai Sumber</title>
+
+    <!-- Font Awesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ========== RESET & BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --bg-card-hover: #1f2a3d;
+            --border-color: #2a3a55;
+            --text-primary: #f0f4ff;
+            --text-secondary: #a0b4d0;
+            --text-muted: #6a7f9f;
+            --blue-primary: #3b82f6;
+            --blue-secondary: #2563eb;
+            --blue-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --blue-glow: 0 0 30px rgba(59, 130, 246, 0.25);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-image:
+                radial-gradient(ellipse at 10% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue-primary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--blue-secondary);
+        }
+
+        /* ========== CONTAINER ========== */
+        .container {
+            max-width: 820px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 12px;
+        }
+
+        /* ========== HEADER / LOGO ========== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 0 12px;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        /* ——— Animated Logo Icon ——— */
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--blue-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: var(--blue-glow);
+            animation: logoPulse 3s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .logo-icon i {
+            font-size: 26px;
+            color: #fff;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+            animation: iconFloat 4s ease-in-out infinite;
+        }
+
+        /* Glow ring around logo */
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 18px;
+            background: var(--blue-gradient);
+            opacity: 0.25;
+            z-index: -1;
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+
+        /* ——— Logo Text ——— */
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: var(--blue-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            line-height: 1.2;
+        }
+
+        .logo-text span {
+            font-weight: 300;
+            -webkit-text-fill-color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        /* ——— Animations ——— */
+        @keyframes logoPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes iconFloat {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-4px) rotate(2deg);
+            }
+        }
+
+        @keyframes ringPulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.25;
+            }
+            50% {
+                transform: scale(1.15);
+                opacity: 0.45;
+            }
+        }
+
+        /* ========== TAGLINE ========== */
+        .tagline {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 400;
+            margin-top: -4px;
+            margin-bottom: 30px;
+            letter-spacing: 0.2px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+            padding-bottom: 20px;
+        }
+        .tagline i {
+            color: var(--blue-primary);
+            margin: 0 4px;
+        }
+
+        /* ========== CARD ========== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(4px);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.25);
+            box-shadow: var(--shadow-card), 0 0 40px rgba(59, 130, 246, 0.05);
+        }
+
+        /* ========== STEP INDICATOR ========== */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color var(--transition);
+        }
+
+        .step-item .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all var(--transition);
+        }
+
+        .step-item.active .num {
+            background: var(--blue-gradient);
+            border-color: var(--blue-primary);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-item.active {
+            color: var(--text-primary);
+        }
+
+        .step-item.done .num {
+            background: #0d9488;
+            border-color: #0d9488;
+            color: #fff;
+        }
+
+        .step-item.done {
+            color: #0d9488;
+        }
+
+        .step-line {
+            width: 32px;
+            height: 2px;
+            background: var(--border-color);
+            border-radius: 4px;
+            transition: background var(--transition);
+        }
+
+        .step-line.done {
+            background: #0d9488;
+        }
+
+        /* ========== FORM ========== */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            overflow: hidden;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-wrapper .icon-left {
+            padding: 0 14px 0 18px;
+            color: var(--text-muted);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            padding: 16px 14px 16px 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 400;
+            min-width: 0;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .input-wrapper .btn-scan {
+            flex-shrink: 0;
+            padding: 12px 24px;
+            margin: 4px 4px 4px 0;
+            background: var(--blue-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .input-wrapper .btn-scan:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+        }
+
+        .input-wrapper .btn-scan:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-wrapper .btn-scan i {
+            font-size: 14px;
+        }
+
+        /* ========== LOADING ========== */
+        .loading-area {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0 10px;
+            gap: 16px;
+        }
+
+        .loading-area.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--blue-primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-area p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .loading-area p i {
+            color: var(--blue-primary);
+            margin-right: 6px;
+        }
+
+        /* ========== ERROR ========== */
+        .error-area {
+            display: none;
+            padding: 16px 18px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius-sm);
+            margin-top: 16px;
+            color: #f87171;
+            font-size: 14px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .error-area.show {
+            display: flex;
+        }
+
+        .error-area i {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* ========== RESULT ========== */
+        .result-area {
+            display: none;
+            margin-top: 28px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ——— Video Info ——— */
+        .video-info {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .video-thumb {
+            width: 160px;
+            min-height: 90px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .video-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-thumb .placeholder-thumb {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 32px;
+            background: var(--bg-secondary);
+        }
+
+        .video-meta {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .video-meta .title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta .source {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .video-meta .source .badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--blue-primary);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        /* ——— Quality Options ——— */
+        .quality-section {
+            margin-top: 6px;
+        }
+
+        .quality-section .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quality-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quality-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+        }
+
+        .quality-btn:hover:not(:disabled) {
+            border-color: var(--blue-primary);
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .quality-btn.active {
+            border-color: var(--blue-primary);
+            background: rgba(59, 130, 246, 0.15);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .quality-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .quality-btn .check {
+            display: none;
+            color: #0d9488;
+        }
+        .quality-btn.active .check {
+            display: inline;
+        }
+
+        /* ——— Download Button ——— */
+        .download-action {
+            margin-top: 22px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            padding: 14px 40px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--blue-gradient);
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-download:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+        }
+
+        .btn-download i {
+            font-size: 18px;
+        }
+
+        .selected-quality-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .selected-quality-label strong {
+            color: var(--text-primary);
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            margin-top: 48px;
+            padding: 20px 0 12px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid rgba(59, 130, 246, 0.06);
+            width: 100%;
+        }
+
+        .footer a {
+            color: var(--blue-primary);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .footer a:hover {
+            color: #60a5fa;
+        }
+
+        .footer .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: heartbeat 1.8s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .card {
+                padding: 20px 16px;
+            }
+            .logo-text {
+                font-size: 22px;
+            }
+            .logo-icon {
+                width: 44px;
+                height: 44px;
+            }
+            .logo-icon i {
+                font-size: 20px;
+            }
+            .input-wrapper {
+                flex-wrap: wrap;
+            }
+            .input-wrapper input {
+                padding: 14px 14px 14px 0;
+                width: 100%;
+                flex: 1 1 100%;
+            }
+            .input-wrapper .btn-scan {
+                width: 100%;
+                justify-content: center;
+                margin: 0 4px 4px 4px;
+                padding: 12px;
+            }
+            .input-wrapper .icon-left {
+                padding-left: 14px;
+            }
+            .video-info {
+                flex-direction: column;
+            }
+            .video-thumb {
+                width: 100%;
+                min-height: 120px;
+            }
+            .steps {
+                gap: 6px;
+                font-size: 12px;
+            }
+            .step-line {
+                width: 16px;
+            }
+            .quality-grid {
+                gap: 8px;
+            }
+            .quality-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+                flex: 1 0 auto;
+            }
+            .btn-download {
+                width: 100%;
+                justify-content: center;
+                padding: 14px 20px;
+            }
+            .download-action {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .selected-quality-label {
+                text-align: center;
+            }
+            .tagline {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .logo-text {
+                font-size: 18px;
+            }
+            .logo-icon {
+                width: 38px;
+                height: 38px;
+            }
+            .logo-icon i {
+                font-size: 17px;
+            }
+            .card {
+                padding: 16px 12px;
+            }
+        }
+
+        /* ========== UTILITY ========== */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .gap-4 {
+            gap: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <a href="#" class="logo-wrapper" onclick="return false;">
+                <div class="logo-icon">
+                    <i class="fas fa-cloud-arrow-down"></i>
+                </div>
+                <span class="logo-text">Download<span>myvids</span></span>
+            </a>
+        </header>
+
+        <p class="tagline">
+            <i class="fas fa-link"></i> Paste link video dari YouTube, X, TikTok, Instagram, Facebook &amp; lainnya
+        </p>
+
+        <!-- ===== MAIN CARD ===== -->
+        <div class="card">
+
+            <!-- Steps -->
+            <div class="steps" id="steps">
+                <div class="step-item active" id="step1">
+                    <span class="num">1</span> Paste Link
+                </div>
+                <div class="step-line" id="line1"></div>
+                <div class="step-item" id="step2">
+                    <span class="num">2</span> Scan
+                </div>
+                <div class="step-line" id="line2"></div>
+                <div class="step-item" id="step3">
+                    <span class="num">3</span> Download
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <span class="icon-left"><i class="fas fa-paste"></i></span>
+                    <input
+                    type="url"
+                    id="videoUrl"
+                    placeholder="Tempelkan link video di sini…"
+                    autocomplete="url"
+                    spellcheck="false"
+                    />
+                    <button class="btn-scan" id="scanBtn">
+                        <i class="fas fa-search"></i> Scan Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-area" id="loadingArea">
+                <div class="spinner"></div>
+                <p><i class="fas fa-circle-notch fa-spin"></i> Memproses link…</p>
+            </div>
+
+            <!-- Error -->
+            <div class="error-area" id="errorArea">
+                <i class="fas fa-circle-exclamation"></i>
+                <span id="errorText">Terjadi kesalahan. Silakan coba lagi.</span>
+            </div>
+
+            <!-- Result -->
+            <div class="result-area" id="resultArea">
+
+                <!-- Video Info -->
+                <div class="video-info" id="videoInfo">
+                    <div class="video-thumb" id="thumbContainer">
+                        <div class="placeholder-thumb">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <img id="thumbImg" style="display:none;" alt="Thumbnail" />
+                    </div>
+                    <div class="video-meta">
+                        <div class="title" id="videoTitle">—</div>
+                        <div class="source">
+                            <span id="videoSource"><i class="fas fa-globe"></i> Sumber</span>
+                            <span class="badge" id="videoBadge">Video</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality -->
+                <div class="quality-section">
+                    <div class="label">
+                        <i class="fas fa-sliders-h"></i> Pilih Kualitas Video
+                    </div>
+                    <div class="quality-grid" id="qualityGrid">
+                        <!-- Diisi oleh JS -->
+                    </div>
+                </div>
+
+                <!-- Download -->
+                <div class="download-action">
+                    <button class="btn-download" id="downloadBtn" disabled>
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <span class="selected-quality-label" id="selectedLabel">
+                        Belum ada kualitas dipilih
+                    </span>
+                </div>
+
+            </div>
+            <!-- /result-area -->
+
+        </div>
+        <!-- /card -->
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <p>
+                &copy; 2026 <strong>Downloadmyvids</strong> &mdash; dibuat dengan
+                <span class="heart">♥</span> untuk kemudahanmu
+                <br />
+                <span style="font-size:12px; opacity:0.6;">
+                    <i class="fas fa-shield-alt"></i> Hanya untuk konten pribadi &amp; non-komersial
+                </span>
+            </p>
+        </footer>
+
+    </div>
+    <!-- /container -->
+
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- DOM refs ----------
+            const urlInput = document.getElementById('videoUrl');
+            const scanBtn = document.getElementById('scanBtn');
+            const loadingArea = document.getElementById('loadingArea');
+            const errorArea = document.getElementById('errorArea');
+            const errorText = document.getElementById('errorText');
+            const resultArea = document.getElementById('resultArea');
+
+            const thumbImg = document.getElementById('thumbImg');
+            const thumbContainer = document.getElementById('thumbContainer');
+            const videoTitle = document.getElementById('videoTitle');
+            const videoSource = document.getElementById('videoSource');
+            const videoBadge = document.getElementById('videoBadge');
+
+            const qualityGrid = document.getElementById('qualityGrid');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const selectedLabel = document.getElementById('selectedLabel');
+
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+            const line1 = document.getElementById('line1');
+            const line2 = document.getElementById('line2');
+
+            // ---------- State ----------
+            let currentData = null; // { title, thumbnail, source, qualities: { label, url }[] }
+            let selectedQuality = null; // { label, url }
+
+            // ---------- Helpers ----------
+            function setSteps(active) {
+                // active: 1 | 2 | 3
+                [step1, step2, step3].forEach((el, i) => {
+                    el.classList.remove('active', 'done');
+                    if (i + 1 < active) el.classList.add('done');
+                    if (i + 1 === active) el.classList.add('active');
+                });
+                [line1, line2].forEach((el, i) => {
+                    el.classList.toggle('done', i + 1 < active);
+                });
+            }
+
+            function showError(msg) {
+                errorText.textContent = msg || 'Terjadi kesalahan. Silakan coba lagi.';
+                errorArea.classList.add('show');
+                loadingArea.classList.remove('show');
+                resultArea.classList.remove('show');
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<i class="fas fa-search"></i> Scan Link';
+                setSteps(1);
+            }
+
+            function hideError() {
+                errorArea.classList.remove('show');
+            }
+
+            function showLoading() {
+                loadingArea.classList.add('show');
+                resultArea.classList.remove('show');
+                hideError();
+                scanBtn.disabled = true;
+                scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses…';
+                setSteps(2);
+            }
+
+            function showResult(data) {
+                loadingArea.classList.remove('show');
+                hideError();
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<i class="fas fa-search"></i> Scan Link';
+                resultArea.classList.add('show');
+                setSteps(3);
+
+                // Update video info
+                videoTitle.textContent = data.title || 'Video tanpa judul';
+                if (data.thumbnail && data.thumbnail.startsWith('http')) {
+                    thumbImg.src = data.thumbnail;
+                    thumbImg.style.display = 'block';
+                    thumbContainer.querySelector('.placeholder-thumb').style.display = 'none';
+                } else {
+                    thumbImg.style.display = 'none';
+                    thumbContainer.querySelector('.placeholder-thumb').style.display = 'flex';
+                }
+
+                const sourceMap = {
+                    'youtube': 'YouTube',
+                    'youtu.be': 'YouTube',
+                    'twitter': 'X (Twitter)',
+                    'x.com': 'X (Twitter)',
+                    'tiktok': 'TikTok',
+                    'instagram': 'Instagram',
+                    'fb.watch': 'Facebook',
+                    'facebook': 'Facebook',
+                    'instagram.com': 'Instagram',
+                };
+                let srcLabel = 'Sumber';
+                let badgeLabel = 'Video';
+                const url = urlInput.value.trim().toLowerCase();
+                for (const [key, val] of Object.entries(sourceMap)) {
+                    if (url.includes(key)) {
+                        srcLabel = val;
+                        badgeLabel = val;
+                        break;
+                    }
+                }
+                videoSource.innerHTML = `<i class="fas fa-globe"></i> ${srcLabel}`;
+                videoBadge.textContent = badgeLabel;
+
+                // Qualities
+                currentData = data;
+                renderQualities(data.qualities || []);
+                selectedQuality = null;
+                downloadBtn.disabled = true;
+                selectedLabel.textContent = 'Belum ada kualitas dipilih';
+            }
+
+            function renderQualities(qualities) {
+                qualityGrid.innerHTML = '';
+                if (!qualities || qualities.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.style.color = 'var(--text-muted)';
+                    empty.style.fontSize = '14px';
+                    empty.textContent = 'Tidak ada kualitas yang tersedia untuk video ini.';
+                    qualityGrid.appendChild(empty);
+                    return;
+                }
+
+                // Sort: 1080p > 720p > 480p > 360p > 144p (desc)
+                const order = ['1080p', '720p', '480p', '360p', '144p'];
+                const sorted = [...qualities].sort((a, b) => {
+                    const ia = order.indexOf(a.label);
+                    const ib = order.indexOf(b.label);
+                    if (ia === -1 && ib === -1) return 0;
+                    if (ia === -1) return 1;
+                    if (ib === -1) return -1;
+                    return ia - ib;
+                });
+
+                sorted.forEach((q) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quality-btn';
+                    btn.dataset.label = q.label;
+                    btn.dataset.url = q.url;
+                    btn.innerHTML = `
+                        <span>${q.label}</span>
+                        <span class="check"><i class="fas fa-check-circle"></i></span>
+                    `;
+                    btn.addEventListener('click', function() {
+                        // Deselect all
+                        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        selectedQuality = { label: this.dataset.label, url: this.dataset.url };
+                        downloadBtn.disabled = false;
+                        selectedLabel.innerHTML =
+                            `Kualitas terpilih: <strong>${selectedQuality.label}</strong>`;
+                    });
+                    qualityGrid.appendChild(btn);
+                });
+            }
+
+            // ---------- Scan Logic ----------
+            async function handleScan() {
+                const url = urlInput.value.trim();
+                if (!url) {
+                    showError('Silakan tempelkan link video terlebih dahulu.');
+                    return;
+                }
+
+                // Validate URL
+                try {
+                    new URL(url);
+                } catch (_) {
+                    showError('Link yang dimasukkan tidak valid. Pastikan menggunakan format URL yang benar.');
+                    return;
+                }
+
+                hideError();
+                showLoading();
+
+                try {
+                    // Gunakan API Vevioz (gratis, support banyak platform)
+                    const apiUrl = 'https://api.vevioz.com/api/button/';
+                    const formData = new FormData();
+                    formData.append('url', url);
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        body: formData,
+                        // mode: 'cors', // default
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                    }
+
+                    const raw = await response.text();
+                    let json;
+                    try {
+                        json = JSON.parse(raw);
+                    } catch (_) {
+                        // Coba parse sebagai HTML (beberapa API return HTML)
+                        throw new Error('Respons dari server tidak dikenali. Coba lagi nanti.');
+                    }
+
+                    // Normalisasi response dari Vevioz
+                    // Biasanya: { success: true, data: { title, thumbnail, download: { ... } } }
+                    // atau { success: true, data: { title, thumbnail, download: { "720p": "url", ... } } }
+                    if (!json.success) {
+                        throw new Error(json.message || 'Gagal memproses link. Coba link lain.');
+                    }
+
+                    const d = json.data || {};
+                    const title = d.title || 'Video';
+                    const thumbnail = d.thumbnail || '';
+
+                    // Ambil download links
+                    const downloads = d.download || d.links || d.media || {};
+                    let qualities = [];
+                    if (typeof downloads === 'object' && downloads !== null) {
+                        for (const [key, val] of Object.entries(downloads)) {
+                            if (typeof val === 'string' && val.startsWith('http')) {
+                                let label = key;
+                                // Bersihkan label: "720p", "480p", dll.
+                                if (label.match(/^\d+p$/i)) {
+                                    label = label.toLowerCase();
+                                } else if (label.toLowerCase().includes('720')) {
+                                    label = '720p';
+                                } else if (label.toLowerCase().includes('480')) {
+                                    label = '480p';
+                                } else if (label.toLowerCase().includes('360')) {
+                                    label = '360p';
+                                } else if (label.toLowerCase().includes('144')) {
+                                    label = '144p';
+                                } else if (label.toLowerCase().includes('1080')) {
+                                    label = '1080p';
+                                } else {
+                                    label = label.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                }
+                                qualities.push({ label, url: val });
+                            }
+                        }
+                    }
+
+                    // Jika tidak ada kualitas, coba cari di field lain
+                    if (qualities.length === 0) {
+                        // Coba cari di semua field yang nilainya string URL
+                        const allUrls = [];
+                        const findUrls = (obj, path) => {
+                            if (!obj || typeof obj !== 'object') return;
+                            for (const [k, v] of Object.entries(obj)) {
+                                if (typeof v === 'string' && v.startsWith('http')) {
+                                    allUrls.push({ label: k, url: v });
+                                } else if (typeof v === 'object' && v !== null) {
+                                    findUrls(v, path + '.' + k);
+                                }
+                            }
+                        };
+                        findUrls(d, 'data');
+                        // Ambil unik
+                        const seen = new Set();
+                        for (const item of allUrls) {
+                            if (!seen.has(item.url)) {
+                                seen.add(item.url);
+                                // Coba tebak label
+                                let label = item.label;
+                                if (label.match(/^\d+p$/i)) label = label.toLowerCase();
+                                else if (label.toLowerCase().includes('720')) label = '720p';
+                                else if (label.toLowerCase().includes('480')) label = '480p';
+                                else if (label.toLowerCase().includes('360')) label = '360p';
+                                else if (label.toLowerCase().includes('144')) label = '144p';
+                                else if (label.toLowerCase().includes('1080')) label = '1080p';
+                                else label = label.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                qualities.push({ label, url: item.url });
+                            }
+                        }
+                    }
+
+                    // Filter: hanya yang punya URL valid
+                    qualities = qualities.filter(q => q.url && q.url.startsWith('http'));
+
+                    if (qualities.length === 0) {
+                        // Coba ambil langsung dari response
+                        const directUrl = d.url || d.download_url || d.video_url || d.link || d.direct_url;
+                        if (directUrl && typeof directUrl === 'string' && directUrl.startsWith('http')) {
+                            qualities.push({ label: 'Video', url: directUrl });
+                        } else {
+                            throw new Error('Tidak ditemukan link download untuk video ini.');
+                        }
+                    }
+
+                    // Hapus duplikat URL
+                    const seenUrl = new Set();
+                    qualities = qualities.filter(q => {
+                        if (seenUrl.has(q.url)) return false;
+                        seenUrl.add(q.url);
+                        return true;
+                    });
+
+                    showResult({
+                        title: title,
+                        thumbnail: thumbnail,
+                        qualities: qualities,
+                    });
+
+                } catch (err) {
+                    console.error('Scan error:', err);
+                    showError(err.message || 'Gagal memproses link. Periksa kembali URL atau coba nanti.');
+                }
+            }
+
+            // ---------- Download Logic ----------
+            function handleDownload() {
+                if (!selectedQuality || !selectedQuality.url) {
+                    return;
+                }
+
+                // Buka URL download di tab baru (atau trigger download)
+                const win = window.open(selectedQuality.url, '_blank');
+                if (!win) {
+                    // Fallback: buat link download
+                    const a = document.createElement('a');
+                    a.href = selectedQuality.url;
+                    a.target = '_blank';
+                    a.download = '';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
+
+            // ---------- Event Listeners ----------
+            scanBtn.addEventListener('click', handleScan);
+
+            urlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    scanBtn.click();
+                }
+            });
+
+            downloadBtn.addEventListener('click', handleDownload);
+
+            // ---------- Init ----------
+            setSteps(1);
+
+            // Focus input
+            urlInput.focus();
+
+        })();
+    </script>
+
+</body>
+</html>
