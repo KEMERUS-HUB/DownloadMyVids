@@ -1,14 +1,14 @@
 {
   "name": "downloadmyvids",
   "version": "1.0.0",
-  "description": "Download videos from various platforms",
+  "description": "Download YouTube videos",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "@lmna22/aio-downloader": "^2.0.3"
+    "ytdl-core": "^4.11.5"
   },
   "engines": {
     "node": ">=16.0.0"

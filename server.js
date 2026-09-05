@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { aioDownloader } = require('@lmna22/aio-downloader');
+const ytdl = require('ytdl-core');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,39 +11,43 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/scan', async (req, res) => {
   try {
     const { url } = req.body;
-    if (!url) {
-      return res.status(400).json({ success: false, message: 'URL diperlukan' });
-    }
-    console.log('[Scan] URL:', url);
+    if (!url) return res.status(400).json({ success: false, message: 'URL diperlukan' });
 
-    const result = await aioDownloader(url);
-    if (!result || !result.status) {
-      throw new Error(result?.message || 'Gagal memproses link');
+    if (!ytdl.validateURL(url)) {
+      return res.status(400).json({ success: false, message: 'URL YouTube tidak valid' });
     }
 
-    const data = result.data || {};
-    const title = data.title || result.title || 'Video';
-    const thumbnail = data.thumbnail || '';
-    const download = data.download || {};
+    const info = await ytdl.getInfo(url);
+    const title = info.videoDetails.title;
+    const thumbnail = info.videoDetails.thumbnails?.[0]?.url || '';
 
-    // Kumpulkan kualitas
-    const qualities = [];
-    for (const [key, value] of Object.entries(download)) {
-      if (typeof value === 'string' && value.startsWith('http')) {
-        let label = key;
-        // Normalisasi label
-        if (label.match(/1080/i)) label = '1080p';
-        else if (label.match(/720/i)) label = '720p';
-        else if (label.match(/480/i)) label = '480p';
-        else if (label.match(/360/i)) label = '360p';
-        else if (label.match(/144/i)) label = '144p';
-        else label = label.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        qualities.push({ label, url: value });
-      }
-    }
+    // Ambil semua format video
+    const formats = info.formats
+      .filter(f => f.hasVideo && f.hasAudio)
+      .map(f => ({
+        label: `${f.qualityLabel}`,
+        url: f.url,
+        quality: f.qualityLabel,
+      }));
 
-    if (qualities.length === 0) {
-      throw new Error('Tidak ditemukan link download');
+    // Sortir dari tertinggi ke terendah
+    const order = ['1080p', '720p', '480p', '360p', '144p'];
+    const sorted = formats.sort((a, b) => {
+      const ia = order.indexOf(a.quality);
+      const ib = order.indexOf(b.quality);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+    // Hapus duplikat kualitas
+    const seen = new Set();
+    const unique = sorted.filter(f => {
+      if (seen.has(f.quality)) return false;
+      seen.add(f.quality);
+      return true;
+    });
+
+    if (unique.length === 0) {
+      throw new Error('Tidak ada format video yang tersedia');
     }
 
     res.json({
@@ -51,13 +55,12 @@ app.post('/api/scan', async (req, res) => {
       data: {
         title,
         thumbnail,
-        download: Object.fromEntries(qualities.map(q => [q.label, q.url]))
-      }
+        download: Object.fromEntries(unique.map(f => [f.label, f.url])),
+      },
     });
-
   } catch (err) {
     console.error('[Scan] Error:', err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err.message || 'Gagal memproses link YouTube' });
   }
 });
 
