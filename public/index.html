@@ -1096,16 +1096,13 @@
 
                 try {
                     // Gunakan API Vevioz (gratis, support banyak platform)
-                    const apiUrl = 'https://api.vevioz.com/api/button/';
-                    const formData = new FormData();
-                    formData.append('url', url);
-
+                    const apiUrl = '/api/scan';
                     const response = await fetch(apiUrl, {
                         method: 'POST',
-                        body: formData,
-                        // mode: 'cors', // default
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url }),
                     });
-
+                    
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status} - ${response.statusText}`);
                     }

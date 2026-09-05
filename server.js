@@ -18,6 +18,7 @@ app.post('/api/scan', async (req, res) => {
 
     console.log(`[Proxy] Menerima URL: ${url}`);
 
+<<<<<<< HEAD
     // Gunakan aio-downloader untuk auto-detect platform
     const result = await lmna.youtube(url, 5); // 5 = 1080p
     
@@ -133,6 +134,111 @@ app.post('/api/scan', async (req, res) => {
   }
 });
 
+=======
+    // Coba gunakan Vevioz dulu (support banyak platform)
+    let data = await tryVevioz(url);
+    if (data) {
+      return res.json(data);
+    }
+
+    // Jika Vevioz gagal, coba YouTube-specific API
+    if (isYouTubeUrl(url)) {
+      console.log('[Proxy] Vevioz gagal, mencoba tubemp3.cc untuk YouTube');
+      data = await tryTubemp3(url);
+      if (data) {
+        return res.json(data);
+      }
+    }
+
+    // Jika semua gagal
+    return res.status(500).json({
+      success: false,
+      message: 'Tidak dapat memproses link. Pastikan link valid dan platform didukung.',
+    });
+  } catch (err) {
+    console.error('[Proxy] Error:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ---------- Fungsi helper ----------
+async function tryVevioz(url) {
+  try {
+    const formData = new URLSearchParams();
+    formData.append('url', url);
+
+    const response = await fetch('https://api.vevioz.com/api/button/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Origin': 'https://vevioz.com',
+        'Referer': 'https://vevioz.com/',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error(`[Vevioz] Status ${response.status}, response: ${text.slice(0, 200)}`);
+      return null;
+    }
+
+    const json = await response.json();
+    if (json.success) {
+      console.log('[Vevioz] Berhasil');
+      return json;
+    } else {
+      console.log('[Vevioz] Gagal (success: false)');
+      return null;
+    }
+  } catch (err) {
+    console.error('[Vevioz] Exception:', err.message);
+    return null;
+  }
+}
+
+async function tryTubemp3(url) {
+  try {
+    const apiUrl = `https://api.tubemp3.cc/api/ytdl?url=${encodeURIComponent(url)}`;
+    const response = await fetch(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Downloadmyvids/1.0)',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`[Tubemp3] Status ${response.status}`);
+      return null;
+    }
+
+    const json = await response.json();
+    // Format response tubemp3: { title, thumbnail, download: { '720p': 'url', ... } }
+    if (json && json.download) {
+      // Ubah ke format yang sama seperti Vevioz
+      const qualities = Object.entries(json.download).map(([label, url]) => ({ label, url }));
+      return {
+        success: true,
+        data: {
+          title: json.title || 'Video',
+          thumbnail: json.thumbnail || '',
+          download: Object.fromEntries(qualities.map(q => [q.label, q.url])),
+        },
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error('[Tubemp3] Exception:', err.message);
+    return null;
+  }
+}
+
+function isYouTubeUrl(url) {
+  return /(youtube\.com|youtu\.be)/i.test(url);
+}
+
+>>>>>>> 11961a5e11f1e31a6a0ed47a0f3fb764748c00ed
 // Static files & fallback
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => {
